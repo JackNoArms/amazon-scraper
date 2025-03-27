@@ -54,12 +54,6 @@ cd amazon-scraper
 ```bash
 # Navigate to backend folder
 cd backend
-
-# Install dependencies (using Bun or npm)
-bun install
-# OR
-npm install
-
 # Start the server
 bun run index.js
 # OR if using Node
