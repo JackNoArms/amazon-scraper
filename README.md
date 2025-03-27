@@ -66,9 +66,6 @@ node index.js
 # Navigate to frontend folder
 cd frontend
 
-# Install dependencies
-npm install
-
 # Start the development server
 npm run dev
 ```
