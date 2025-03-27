@@ -33,31 +33,49 @@ A high-performance Amazon product scraper with modern JavaScript stack.
 
 ## 🛠 Setup Guide
 
+### Prerequisites
+
+Before you begin, ensure you have installed:
+
+1. [Node.js](https://nodejs.org/) (v18 or higher)
+2. [Bun](https://bun.sh/) (optional but recommended for backend)
+3. [Git](https://git-scm.com/) (for cloning the repository)
+
+### Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/JackNoArms/amazon-scraper.git
+cd amazon-scraper
+
 ### Backend (Bun)
 
 ```bash
-# Create project directory
-mkdir amazon-scraper
-cd amazon-scraper
+# Navigate to backend folder
+cd backend
 
-# Initialize Bun project
-bun init -y
+# Install dependencies (using Bun or npm)
+bun install
+# OR
+npm install
 
-# Install dependencies
-bun add express axios jsdom cors
+# Start the server
+bun run index.js
+# OR if using Node
+node index.js
 ```
 
 ### Frontend (Vite)
 
 ```bash
-# Scaffold Vite project
-npm create vite@latest frontend -- --template vanilla
-
-# Enter frontend directory
+# Navigate to frontend folder
 cd frontend
 
-# Install packages
+# Install dependencies
 npm install
+
+# Start the development server
+npm run dev
 ```
 
 ## 📂 Directory Structure
@@ -65,17 +83,31 @@ npm install
 ```
 amazon-scraper/
 ├── backend/
-│   ├── server.js         # Express server entry
-│   ├── scraper/          # Scraping logic
-│   │   ├── parser.js     # HTML parser
-│   │   └── client.js     # HTTP client
-│   └── utils/
-│       └── rateLimiter.js
+│   ├── src/
+│   │   ├── config/          # Configuration files
+│   │   ├── domain/          # Core business logic
+│   │   │   ├── entities/    # Domain models
+│   │   │   └── useCases/    # Business rules
+│   │   ├── infrastructure/  # External services
+│   │   │   ├── http/        # HTTP clients
+│   │   │   └── parsers/     # Data parsers
+│   │   ├── interfaces/      # Delivery mechanisms
+│   │   │   ├── controllers/ # Route handlers
+│   │   │   ├── repositories # Data access
+│   │   │   └── presentation/
+│   │   │       ├── routes/  # API endpoints
+│   │   │       └── server.ts# Express server
+│   │   └── shared/          # Common utilities
+│   │       ├── errors/      # Custom errors
+│   │       └── utils/       # Helper functions
+│   └── tsconfig.json        # TypeScript config
 ├── frontend/
 │   ├── src/
-│   │   ├── components/   # UI components
-│   │   ├── api/          # Client-side API calls
-│   │   └── main.js       # App entry
+│   │   ├── core/
+│   │   │   └── api/
+│   │   │       └── ApiClient.js # API Service
+│   │   ├── components/      # UI components
+│   │   └── pages/           # Application views
 │   └── vite.config.js
 └── README.md
 ```
@@ -107,7 +139,7 @@ npm run dev
 ## 📡 API Reference
 
 ```http
-GET /api/scrape?keyword={searchTerm}&page={number}
+GET /api/scrape?keyword={searchTerm}
 ```
 
 **Response Example**
