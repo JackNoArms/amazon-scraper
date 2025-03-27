@@ -47,6 +47,7 @@ Before you begin, ensure you have installed:
 # Clone the repository
 git clone https://github.com/JackNoArms/amazon-scraper.git
 cd amazon-scraper
+```
 
 ### Backend (Bun)
 
