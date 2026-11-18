@@ -8,5 +8,6 @@ dist/
 coverage/
 *.log
 *.tmp
+*.bak
 .DS_Store
 backend/amazon_response.html

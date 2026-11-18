@@ -1,173 +1,100 @@
-# 🔍 Amazon Product Scraper
+# Product Discovery Lab
 
-![Bun Shield](https://img.shields.io/badge/Bun-1.0-FFCB47?logo=bun&style=flat)
-![Vite Shield](https://img.shields.io/badge/Vite-5.0-646CFF?logo=vite&style=flat)
-![License MIT](https://img.shields.io/badge/license-MIT-green)
+**Aplicação full-stack para pesquisar e visualizar informações públicas de produtos da Amazon.** Combina uma API Node.js com um frontend responsivo em JavaScript.
 
-A high-performance Amazon product scraper with modern JavaScript stack.
+![Node.js](https://img.shields.io/badge/Node.js-20%2B-339933?logo=nodedotjs&logoColor=white) ![Express](https://img.shields.io/badge/Express-API-2c343a) ![Vite](https://img.shields.io/badge/Vite-Frontend-646CFF?logo=vite&logoColor=white)
 
-![Application Preview](docs/screenshot.png)
+## Interface
 
-## 🌟 Features
+| Desktop | Celular |
+| --- | --- |
+| ![Pesquisa de produtos no desktop](docs/product-discovery-desktop.png) | ![Pesquisa de produtos no celular](docs/product-discovery-mobile.png) |
 
-| Feature | Description |
-|---------|-------------|
-| **Lightning Fast** | Bun runtime for backend operations |
-| **Modern Frontend** | Vite-powered vanilla JS |
-| **Real-time Data** | Live Amazon product scraping |
-| **Polite Scraper** | Built-in rate limiting |
-| **Clean UI** | Responsive product cards |
+## Funcionalidades
 
-## 🧩 Tech Stack
+- **Pesquisa por palavra-chave:** informe o produto desejado para buscar listagens públicas.
+- **Resultados em cartões:** nome, preço disponível, avaliação, imagem e link para a página original.
+- **Paginação:** navegue pelas primeiras páginas de resultados disponíveis.
+- **Modo demonstração:** explore a interface mesmo quando a consulta ao site não estiver disponível.
+- **Tratamento de falhas:** mensagens claras quando não há resultados, quando a API está indisponível ou quando a fonte restringe a consulta.
+- **Design responsivo:** interface adaptada para desktop e celular, com navegação por teclado.
 
-**Backend**
-- Runtime: [Bun](https://bun.sh/) (v1.0)
-- Server: Express
-- Scraping: JSDOM + Axios
-- Middleware: CORS
+O modo demonstração utiliza **produtos e preços fictícios**, identificados na tela. As consultas reais dependem da disponibilidade das páginas públicas da Amazon.
 
-**Frontend**
-- Builder: [Vite](https://vitejs.dev/) (v5.0)
-- Core: Vanilla JavaScript (ES6+)
-- Styling: CSS3 (Flexbox/Grid)
+## Tecnologias
 
-## 🛠 Setup Guide
+| Tecnologia | Utilização |
+| --- | --- |
+| **Node.js e Express** | Servidor HTTP e endpoints de consulta |
+| **Axios** | Solicitações HTTP às páginas públicas |
+| **JSDOM** | Extração dos campos de produto a partir do HTML |
+| **JavaScript e Vite** | Frontend e compilação |
+| **CSS** | Layout e componentes responsivos |
+| **Node Test Runner** | Testes automatizados |
 
-### Prerequisites
+## Como executar
 
-Before you begin, ensure you have installed:
-
-1. [Node.js](https://nodejs.org/) (v18 or higher)
-2. [Bun](https://bun.sh/) (optional but recommended for backend)
-3. [Git](https://git-scm.com/) (for cloning the repository)
-
-### Installation
+**Pré-requisitos:** Node.js 20 ou superior e npm.
 
 ```bash
-# Clone the repository
 git clone https://github.com/JackNoArms/amazon-scraper.git
 cd amazon-scraper
+npm ci
+npm --prefix frontend ci
 ```
 
-### Backend (Bun)
+Abra dois terminais na pasta raiz do projeto.
+
+**Terminal 1 — API local:**
 
 ```bash
-# Navigate to backend folder
-cd backend
-# Start the server
-bun run index.js
-# OR if using Node
-node index.js
+npm run dev:api
 ```
 
-### Frontend (Vite)
+**Terminal 2 — interface:**
 
 ```bash
-# Navigate to frontend folder
-cd frontend
-
-# Start the development server
-npm run dev
+npm run dev:ui
 ```
 
-## 📂 Directory Structure
+A interface será disponibilizada pelo Vite, normalmente em **http://localhost:5173**, e a API utiliza **http://127.0.0.1:3000**.
 
-```
-amazon-scraper/
-├── backend/
-│   ├── src/
-│   │   ├── config/          # Configuration files
-│   │   ├── domain/          # Core business logic
-│   │   │   ├── entities/    # Domain models
-│   │   │   └── useCases/    # Business rules
-│   │   ├── infrastructure/  # External services
-│   │   │   ├── http/        # HTTP clients
-│   │   │   └── parsers/     # Data parsers
-│   │   ├── interfaces/      # Delivery mechanisms
-│   │   │   ├── controllers/ # Route handlers
-│   │   │   ├── repositories # Data access
-│   │   │   └── presentation/
-│   │   │       ├── routes/  # API endpoints
-│   │   │       └── server.ts# Express server
-│   │   └── shared/          # Common utilities
-│   │       ├── errors/      # Custom errors
-│   │       └── utils/       # Helper functions
-│   └── tsconfig.json        # TypeScript config
-├── frontend/
-│   ├── src/
-│   │   ├── core/
-│   │   │   └── api/
-│   │   │       └── ApiClient.js # API Service
-│   │   ├── components/      # UI components
-│   │   └── pages/           # Application views
-│   └── vite.config.js
-└── README.md
-```
+A demonstração funciona sem o backend. Para pesquisar listagens reais, deixe ambos os processos iniciados.
 
-## ⚙️ Configuration
-
-Create `.env` file in backend:
-
-```ini
-PORT=3000
-REQUEST_DELAY=2000 # milliseconds between requests
-MAX_RETRIES=3      # failed request attempts
-USER_AGENT=Mozilla/5.0 # browser impersonation
-```
-
-## 🚦 Running the Project
-
-**Backend Server**
-```bash
-bun run backend/server.js
-```
-
-**Frontend Development**
-```bash
-cd frontend
-npm run dev
-```
-
-## 📡 API Reference
+## API
 
 ```http
-GET /api/scrape?keyword={searchTerm}
+GET /api/health
+GET /api/scrape?keyword=teclado&page=1
 ```
 
-**Response Example**
-```json
-{
-  "products": [
-    {
-      "title": "Wireless Earbuds",
-      "price": "$29.99",
-      "rating": 4.5,
-      "imageUrl": "...",
-      "isPrime": true
-    }
-  ]
-}
+Uma busca bem-sucedida retorna um objeto com `products`, `page`, `count` e `source`. Cada produto pode incluir `title`, `price`, `rating`, `reviewCount`, `imageUrl`, `url` e `prime`.
+
+As páginas disponíveis e os campos extraídos dependem da estrutura atual da fonte.
+
+## Estrutura
+
+```text
+backend/
+  src/domain/           Casos de uso
+  src/infrastructure/   HTTP, limite de consultas e parser HTML
+  src/presentation/     Controller e rotas
+frontend/
+  src/components/       Formulário e cartões de produto
+  src/core/api/         Cliente da API
+  src/pages/            Página de pesquisa
+  src/styles/           Estilos da interface
+tests/                  Testes da API, parser e frontend
+docs/                   Capturas da interface
 ```
 
-## 🚨 Important Notes
+## Testes
 
-- This project requires Node.js v18+ or Bun runtime
-- Amazon may block scrapers - use responsibly
-- Add proper error handling for production use
-- Consider rotating User-Agents and proxies
+```bash
+npm test
+npm run build:ui
+```
 
-## 🤝 How to Contribute
+O backend utiliza consultas com tempo limite e controle de frequência. O projeto **não tenta contornar CAPTCHA, autenticação ou bloqueios do provedor**. Caso a coleta automatizada seja restrita, utilize a demonstração para conhecer a interface.
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/improvement`)
-3. Commit changes (`git commit -m 'Add new feature'`)
-4. Push to branch (`git push origin feature/improvement`)
-5. Open a Pull Request
-
-## 📜 License
-
-MIT License © 2024 [JackNoArms](https://github.com/JackNoArms)
-
----
-
-> **Note**: This project is for educational purposes only. Always comply with Amazon's Terms of Service.
+*Projeto independente para fins de estudo. Não afiliado à Amazon.*
