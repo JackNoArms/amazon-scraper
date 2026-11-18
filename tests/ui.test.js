@@ -31,6 +31,13 @@ test('only HTTPS amazon.com links become product title anchors',()=>{
  });
 });
 
+test('external tracking image hosts are rejected',()=>{
+ withDOM(()=>{
+  const card=new ProductCard({title:'ok',imageUrl:'https://tracking.bad-site.test/pixel.png'}).render();
+  assert.ok(card.querySelector('img').src.startsWith('data:image/svg+xml,'));
+ });
+});
+
 test('home page displays eight labeled example products without network',()=>{
  withDOM(()=>{
   const page=new HomePage({apiClient:{scrapeProducts:()=>{throw Error('demo should not call API')}}});

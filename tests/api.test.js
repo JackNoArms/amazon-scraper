@@ -12,6 +12,17 @@ test('API health reports only public service information',async()=>{
   assert.equal(res.status,200);
   assert.deepEqual(await res.json(),{status:'ok',service:'product-discovery-lab'});
   assert.equal(res.headers.get('x-powered-by'),null);
+  assert.equal(res.headers.get('x-content-type-options'),'nosniff');
+  assert.match(res.headers.get('content-security-policy'),/script-src 'self'/);
+  const base='http://127.0.0.1:'+port;
+  const home=await fetch(base+'/');
+  assert.equal(home.status,200);
+  assert.match(await home.text(),/Product Discovery Lab/);
+  const css=await fetch(base+'/src/styles/main.css');
+  assert.equal(css.status,200);
+  assert.match(await css.text(),/\.product-card/);
+  const hidden=await fetch(base+'/package-lock.json');
+  assert.equal(hidden.status,404);
  }finally{await new Promise(resolve=>server.close(resolve))}
 });
 
