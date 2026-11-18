@@ -9,7 +9,7 @@ permissions:
   contents: read
 
 jobs:
-  test-and-build:
+  validate:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -20,18 +20,16 @@ jobs:
         with:
           node-version: '20'
           cache: npm
-          cache-dependency-path: |
-            package-lock.json
-            frontend/package-lock.json
-      - name: Install backend dependencies
+          cache-dependency-path: package-lock.json
+      - name: Install
         run: npm ci --no-audit --no-fund
-      - name: Install frontend dependencies
-        run: npm --prefix frontend ci --no-audit --no-fund
-      - name: Run local tests
+      - name: Dependency vulnerability audit
+        run: npm audit --audit-level=high
+      - name: Unit tests without external requests
         run: npm test
-      - name: Build Vite frontend
+      - name: Build static interface
         run: npm run build:ui
-      - name: Verify no generated dependencies tracked
+      - name: Verify excluded artifacts
         shell: bash
         run: |
           if git ls-files | grep -E '(^|/)node_modules/|^\.cache/|^backend/amazon_response\.html$'; then
