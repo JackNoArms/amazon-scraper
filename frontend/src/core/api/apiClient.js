@@ -1,5 +1,5 @@
 export class ApiClient {
-  constructor(baseURL = 'http://127.0.0.1:3000') {
+  constructor(baseURL = '') {
     this.baseURL = baseURL.replace(/\/$/, '');
   }
   async scrapeProducts(keyword, page = 1) {

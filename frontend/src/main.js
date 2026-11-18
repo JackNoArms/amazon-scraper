@@ -1,5 +1,4 @@
 import {HomePage} from './pages/HomePage.js';
-import './styles/main.css';
 
 const app=document.getElementById('app');
 const header=document.createElement('header');header.className='site-header';
