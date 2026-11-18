@@ -1,57 +1,32 @@
 import { JSDOM } from 'jsdom';
 
-/**
- * HTML parser specialized for Amazon search results.
- * Extracts product data from DOM using CSS selectors.
- * Note: Selectors may break if Amazon changes markup.
- */
+/** Parse only public search HTML into plain product data. The real site can change. */
 export class AmazonParser {
-  /**
-   * Parses HTML into structured product data
-   * @param {string} html - Raw HTML from search page
-   * @returns {Object[]} Array of product objects
-   */
   parse(html) {
-    const dom = new JSDOM(html);
-    const document = dom.window.document;
+    if (typeof html !== 'string' || html.length > 5_000_000) {
+      throw new TypeError('Resposta HTML inválida ou muito grande.');
+    }
+    const { document } = new JSDOM(html).window;
     const products = [];
-    
-    // Selector targets individual product cards
     const items = document.querySelectorAll('.s-result-item[data-component-type="s-search-result"]');
-    
     items.forEach(item => {
+      const titleNode = item.querySelector('h2 a') || item.querySelector('.a-text-normal');
+      const title = titleNode?.textContent?.trim();
+      if (!title) return;
+      let url = null;
       try {
-        // Extract data points with null checks
-        const titleElement = item.querySelector('h2 a') || item.querySelector('.a-text-normal');
-        const title = titleElement?.textContent?.trim();
-        const url = titleElement?.href;
-        
-        const ratingText = item.querySelector('.a-icon-star-small .a-icon-alt')?.textContent;
-        const rating = ratingText ? parseFloat(ratingText.split(' ')[0]) : null;
-        
-        const reviewCountText = item.querySelector('.a-size-small .a-link-normal')?.textContent;
-        const reviewCount = reviewCountText ? reviewCountText.replace(/,/g, '') : null;
-        
-        const imageUrl = item.querySelector('.s-image')?.src;
-        const price = item.querySelector('.a-price .a-offscreen')?.textContent;
-        const isPrime = !!item.querySelector('.a-icon-prime');
-        
-        if (title) {
-          products.push({
-            title,
-            url: url ? `https://www.amazon.com${url}` : null,
-            rating,
-            reviewCount,
-            imageUrl,
-            price,
-            prime: isPrime
-          });
-        }
-      } catch (error) {
-        console.error('Failed to parse product element:', error);
-      }
+        const href = titleNode.getAttribute('href');
+        const parsed = new URL(href, 'https://www.amazon.com');
+        if (parsed.protocol === 'https:' && parsed.hostname === 'www.amazon.com') url = parsed.href;
+      } catch { /* A product without a valid external link is still displayable. */ }
+      const rawRating = item.querySelector('.a-icon-star-small .a-icon-alt')?.textContent;
+      const number = Number.parseFloat(String(rawRating ?? '').replace(',', '.'));
+      const rating = Number.isFinite(number) && number >= 0 && number <= 5 ? number : null;
+      const reviewCount = item.querySelector('.a-size-small .a-link-normal')?.textContent?.replace(/[^0-9]/g,'') || null;
+      const imageUrl = item.querySelector('.s-image')?.getAttribute('src') || null;
+      const price = item.querySelector('.a-price .a-offscreen')?.textContent?.trim() || null;
+      products.push({ title, url, rating, reviewCount, imageUrl, price, prime: !!item.querySelector('.a-icon-prime') });
     });
-    
     return products;
   }
 }

@@ -1,0 +1,37 @@
+name: Node quality checks
+
+on:
+  pull_request:
+  push:
+    branches: [main, master]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Install
+        run: npm ci --no-audit --no-fund
+      - name: Dependency vulnerability audit
+        run: npm audit --audit-level=high
+      - name: Unit tests without external requests
+        run: npm test
+      - name: Build static interface
+        run: npm run build:ui
+      - name: Verify excluded artifacts
+        shell: bash
+        run: |
+          if git ls-files | grep -E '(^|/)node_modules/|^\.cache/|^backend/amazon_response\.html$'; then
+            echo "Generated artifacts should not be committed"; exit 1
+          fi

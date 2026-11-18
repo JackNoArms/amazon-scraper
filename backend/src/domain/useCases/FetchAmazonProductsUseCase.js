@@ -1,33 +1,20 @@
 import { AmazonHttpClient } from '../../infrastructure/http/AmazonHttpClient.js';
 import { AmazonParser } from '../../infrastructure/parsers/AmazonParser.js';
 
-/**
- * Core business use case for product search.
- * Coordinates between network layer (HTTP) and data layer (Parser).
- * Implements Command Pattern for operation encapsulation.
- */
 export class FetchAmazonProductsUseCase {
-  constructor() {
-    // Concrete dependencies - consider injecting these for testing
-    this.httpClient = new AmazonHttpClient(); // Handles HTTP transport
-    this.parser = new AmazonParser();         // Handles HTML data extraction
+  constructor({ httpClient = new AmazonHttpClient(), parser = new AmazonParser() } = {}) {
+    this.httpClient = httpClient;
+    this.parser = parser;
   }
-
-  /**
-   * Executes product search pipeline
-   * @param {string} keyword - Search phrase (min 2 chars)
-   * @param {number} page - Pagination index (1-based)
-   * @returns {Promise<Object[]>} List of product data objects
-   * @throws {Error} When input validation fails or network errors occur
-   */
   async execute(keyword, page = 1) {
-    // Early validation prevents unnecessary HTTP calls
-    if (!keyword || keyword.trim().length < 2) {
-      throw new Error('Search keyword must contain at least 2 characters');
+    const query = typeof keyword === 'string' ? keyword.trim() : '';
+    if (query.length < 2 || query.length > 90) {
+      throw new RangeError('Informe entre 2 e 90 caracteres para a busca.');
     }
-    
-    // Pipeline: Network call → Data parsing → Normalization
-    const html = await this.httpClient.fetchSearchResults(keyword, page);
+    if (!Number.isSafeInteger(page) || page < 1 || page > 3) {
+      throw new RangeError('A página deve estar entre 1 e 3.');
+    }
+    const html = await this.httpClient.fetchSearchResults(query, page);
     return this.parser.parse(html);
   }
 }
