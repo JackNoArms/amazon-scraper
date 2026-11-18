@@ -1,0 +1,39 @@
+name: Node quality checks
+
+on:
+  pull_request:
+  push:
+    branches: [main, master]
+
+permissions:
+  contents: read
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            frontend/package-lock.json
+      - name: Install backend dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Install frontend dependencies
+        run: npm --prefix frontend ci --no-audit --no-fund
+      - name: Run local tests
+        run: npm test
+      - name: Build Vite frontend
+        run: npm run build:ui
+      - name: Verify no generated dependencies tracked
+        shell: bash
+        run: |
+          if git ls-files | grep -E '(^|/)node_modules/|^\.cache/|^backend/amazon_response\.html$'; then
+            echo "Generated artifacts should not be committed"; exit 1
+          fi
