@@ -1,4 +1,14 @@
 {
+  "name": "product-discovery-lab",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start:api": "node backend/index.js",
+    "dev:api": "node backend/index.js",
+    "dev:ui": "npm --prefix frontend run dev",
+    "build:ui": "npm --prefix frontend run build",
+    "test": "node --test tests/*.test.js"
+  },
   "dependencies": {
     "axios": "^1.8.4",
     "cors": "^2.8.5",
