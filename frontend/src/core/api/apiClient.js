@@ -1,38 +1,25 @@
-/**
- * Service class for API communication
- * Handles:
- * - Request construction
- * - Error handling
- * - Response parsing
- */
 export class ApiClient {
-  /**
-   * @param {string} baseURL - API base URL
-   */
-  constructor(baseURL = 'http://localhost:3000') {
-    this.baseURL = baseURL;
+  constructor(baseURL = 'http://127.0.0.1:3000') {
+    this.baseURL = baseURL.replace(/\/$/, '');
   }
-
-  /**
-   * Fetches products from scraping API
-   * @param {string} keyword - Search term
-   * @returns {Promise<Object[]>} Array of product objects
-   * @throws {Error} On network issues or API errors
-   */
-  async scrapeProducts(keyword) {
+  async scrapeProducts(keyword, page = 1) {
+    const params = new URLSearchParams({ keyword, page: String(page) });
+    let response;
     try {
-      const response = await fetch(`${this.baseURL}/api/scrape?keyword=${encodeURIComponent(keyword)}`);
-      
-      if (!response.ok) {
-        // Handle HTTP errors (4xx, 5xx)
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || 'Error fetching products');
-      }
-      
-      return await response.json();
-    } catch (error) {
-      console.error('ApiClient error:', error);
-      throw error; // Re-throw for error boundary handling
+      response = await fetch(this.baseURL + '/api/scrape?' + params.toString(), {
+        headers: { Accept: 'application/json' },
+        signal: AbortSignal.timeout(15000),
+      });
+    } catch {
+      throw new Error('Não foi possível conectar à API local. Verifique se o backend está ligado.');
     }
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(typeof result.message === 'string' ? result.message : 'Falha ao consultar produtos.');
+    }
+    if (!result || !Array.isArray(result.products)) {
+      throw new Error('Resposta inesperada da API.');
+    }
+    return result;
   }
 }
